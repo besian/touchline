@@ -7,6 +7,8 @@ import type {
   PlayerProfile,
   PlayerSeasonStats,
   StatPair,
+  TeamProfile,
+  TeamStats,
 } from "./types";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8787/api";
@@ -35,4 +37,7 @@ export const api = {
   teamPlayers: (teamId: number) => get<PlayerSeasonStats[]>(`/teams/${teamId}/players`),
   searchPlayers: (q: string) => get<PlayerSeasonStats[]>(`/players/search?q=${encodeURIComponent(q)}`),
   playerProfile: (playerId: number) => get<PlayerProfile>(`/players/${playerId}`),
+  teamProfile: (teamId: number) => get<TeamProfile>(`/teams/${teamId}`),
+  teamStatistics: (teamId: number) => get<TeamStats>(`/teams/${teamId}/statistics`),
+  teamFixtures: (teamId: number, last = 10) => get<Fixture[]>(`/teams/${teamId}/fixtures?last=${last}`),
 };

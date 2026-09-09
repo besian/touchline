@@ -12,6 +12,9 @@ import {
   getPlayerStatistics,
   getPlayersByTeam,
   getStandings,
+  getTeamFixtures,
+  getTeamProfile,
+  getTeamStatistics,
   searchPlayers,
 } from "./apiFootball.js";
 import {
@@ -22,6 +25,8 @@ import {
   normalizePlayerProfile,
   normalizePlayerStats,
   normalizeStatistics,
+  normalizeTeamProfile,
+  normalizeTeamStats,
   summarizeScorers,
 } from "./normalize.js";
 import { cached } from "./cache.js";
@@ -179,6 +184,38 @@ router.get("/teams/:id/players", async (req, res) => {
     const teamId = Number(req.params.id);
     const [p1, p2] = await Promise.all([getPlayersByTeam(teamId, 1), getPlayersByTeam(teamId, 2)]);
     res.json(normalizePlayerStats([...p1, ...p2]));
+  } catch (err) {
+    handleError(res, err);
+  }
+});
+
+router.get("/teams/:id/statistics", async (req, res) => {
+  try {
+    const raw = await getTeamStatistics(Number(req.params.id));
+    res.json(normalizeTeamStats(raw));
+  } catch (err) {
+    handleError(res, err);
+  }
+});
+
+router.get("/teams/:id/fixtures", async (req, res) => {
+  try {
+    const last = req.query.last ? Number(req.query.last) : 10;
+    const raw = await getTeamFixtures(Number(req.params.id), last);
+    res.json(raw.map(normalizeFixture));
+  } catch (err) {
+    handleError(res, err);
+  }
+});
+
+router.get("/teams/:id", async (req, res) => {
+  try {
+    const raw = await getTeamProfile(Number(req.params.id));
+    if (raw.length === 0) {
+      res.status(404).json({ error: "Team not found" });
+      return;
+    }
+    res.json(normalizeTeamProfile(raw[0]));
   } catch (err) {
     handleError(res, err);
   }

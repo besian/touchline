@@ -3,7 +3,15 @@ import { usePolling } from "../hooks/usePolling";
 import { FixtureRow } from "./FixtureRow";
 import { LIVE_STATUSES } from "../types";
 
-export function FixturesView({ round, onOpen }: { round: string | null | undefined; onOpen: (fixtureId: number) => void }) {
+export function FixturesView({
+  round,
+  onOpen,
+  onSelectTeam,
+}: {
+  round: string | null | undefined;
+  onOpen: (fixtureId: number) => void;
+  onSelectTeam: (teamId: number) => void;
+}) {
   const { data: fixtures, error, loading } = usePolling(
     () => (round ? api.fixtures(round) : Promise.resolve([])),
     20_000,
@@ -62,7 +70,7 @@ export function FixturesView({ round, onOpen }: { round: string | null | undefin
           </div>
         )}
         {(fixtures ?? []).map((f) => (
-          <FixtureRow key={f.id} fixture={f} onOpen={() => onOpen(f.id)} />
+          <FixtureRow key={f.id} fixture={f} onOpen={() => onOpen(f.id)} onSelectTeam={onSelectTeam} />
         ))}
       </div>
     </div>

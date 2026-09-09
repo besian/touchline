@@ -3,7 +3,15 @@ import { api } from "../api";
 import { usePolling } from "../hooks/usePolling";
 import { TeamCrest } from "./TeamCrest";
 
-export function PlayerView({ playerId, onBack }: { playerId: number; onBack: () => void }) {
+export function PlayerView({
+  playerId,
+  onBack,
+  onSelectTeam,
+}: {
+  playerId: number;
+  onBack: () => void;
+  onSelectTeam: (teamId: number) => void;
+}) {
   const { data: profile, error, loading } = usePolling(() => api.playerProfile(playerId), 5 * 60_000, [playerId]);
 
   return (
@@ -68,9 +76,15 @@ export function PlayerView({ playerId, onBack }: { playerId: number; onBack: () 
                   boxShadow: "var(--shadow-sm)",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+                <div
+                  className="tl-player-clickable"
+                  onClick={() => onSelectTeam(s.teamId)}
+                  style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}
+                >
                   <TeamCrest id={s.teamId} logo={s.teamLogo} name={s.teamName} size={22} />
-                  <span style={{ fontFamily: "var(--font-heading)", fontSize: 15 }}>{s.teamName}</span>
+                  <span className="tl-player-name" style={{ fontFamily: "var(--font-heading)", fontSize: 15 }}>
+                    {s.teamName}
+                  </span>
                   <span style={{ fontSize: 12, color: "var(--color-neutral-500)" }}>· {s.leagueName}</span>
                   <div style={{ flex: 1 }} />
                   <span style={{ fontSize: 12, color: "var(--color-neutral-500)" }}>{s.position}</span>

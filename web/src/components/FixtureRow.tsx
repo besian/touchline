@@ -9,7 +9,15 @@ import { findMarket, findPrice } from "../lib/odds";
 import { scoreText, statusInfo } from "../lib/format";
 import type { Fixture } from "../types";
 
-export function FixtureRow({ fixture, onOpen }: { fixture: Fixture; onOpen: () => void }) {
+export function FixtureRow({
+  fixture,
+  onOpen,
+  onSelectTeam,
+}: {
+  fixture: Fixture;
+  onOpen: () => void;
+  onSelectTeam: (teamId: number) => void;
+}) {
   const { data: markets } = usePolling(() => api.odds(fixture.id), 45_000, [fixture.id]);
   const { addPick, isSelected } = useBetSlip();
 
@@ -52,18 +60,25 @@ export function FixtureRow({ fixture, onOpen }: { fixture: Fixture; onOpen: () =
     >
       <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)", cursor: "pointer", minWidth: 0 }} onClick={onOpen}>
         <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0, flex: 1 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <TeamCrest id={fixture.home.id} logo={fixture.home.logo} name={fixture.home.name} />
-            <span style={{ fontFamily: "var(--font-heading)", fontSize: 17, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {fixture.home.name}
-            </span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <TeamCrest id={fixture.away.id} logo={fixture.away.logo} name={fixture.away.name} />
-            <span style={{ fontFamily: "var(--font-heading)", fontSize: 17, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-              {fixture.away.name}
-            </span>
-          </div>
+          {[fixture.home, fixture.away].map((team) => (
+            <div
+              key={team.id}
+              className="tl-player-clickable"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelectTeam(team.id);
+              }}
+              style={{ display: "flex", alignItems: "center", gap: 10 }}
+            >
+              <TeamCrest id={team.id} logo={team.logo} name={team.name} />
+              <span
+                className="tl-player-name"
+                style={{ fontFamily: "var(--font-heading)", fontSize: 17, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+              >
+                {team.name}
+              </span>
+            </div>
+          ))}
         </div>
         <div
           style={{

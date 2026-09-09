@@ -15,10 +15,12 @@ export function MatchView({
   fixtureId,
   onBack,
   onSelectPlayer,
+  onSelectTeam,
 }: {
   fixtureId: number;
   onBack: () => void;
   onSelectPlayer: (playerId: number) => void;
+  onSelectTeam: (teamId: number) => void;
 }) {
   const [side, setSide] = useState<"both" | "home" | "away">("both");
 
@@ -86,9 +88,15 @@ export function MatchView({
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "var(--space-6)" }}>
-              <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+              <div
+                className="tl-player-clickable"
+                onClick={() => onSelectTeam(fixture.home.id)}
+                style={{ flex: 1, display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}
+              >
                 <TeamCrest id={fixture.home.id} logo={fixture.home.logo} name={fixture.home.name} size={30} />
-                <span style={{ fontFamily: "var(--font-heading)", fontSize: 24 }}>{fixture.home.name}</span>
+                <span className="tl-player-name" style={{ fontFamily: "var(--font-heading)", fontSize: 24 }}>
+                  {fixture.home.name}
+                </span>
               </div>
               <div style={{ textAlign: "center" }}>
                 <div style={{ fontFamily: "var(--font-heading)", fontSize: 40, fontVariantNumeric: "tabular-nums", letterSpacing: "0.04em" }}>
@@ -106,8 +114,14 @@ export function MatchView({
                   {status.isLive ? `${status.text} live` : status.isFinished ? "Full time" : `Kick off ${status.text}`}
                 </div>
               </div>
-              <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 12, justifyContent: "flex-end", minWidth: 0 }}>
-                <span style={{ fontFamily: "var(--font-heading)", fontSize: 24 }}>{fixture.away.name}</span>
+              <div
+                className="tl-player-clickable"
+                onClick={() => onSelectTeam(fixture.away.id)}
+                style={{ flex: 1, display: "flex", alignItems: "center", gap: 12, justifyContent: "flex-end", minWidth: 0 }}
+              >
+                <span className="tl-player-name" style={{ fontFamily: "var(--font-heading)", fontSize: 24 }}>
+                  {fixture.away.name}
+                </span>
                 <TeamCrest id={fixture.away.id} logo={fixture.away.logo} name={fixture.away.name} size={30} />
               </div>
             </div>

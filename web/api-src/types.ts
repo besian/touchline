@@ -11,6 +11,7 @@ export interface PastResult extends Fixture {
 export interface Fixture {
   id: number;
   round: string;
+  competitionName?: string;
   status: string; // API-Football short status: NS, 1H, HT, 2H, ET, FT, ...
   elapsed: number | null;
   kickoff: string;
@@ -110,4 +111,25 @@ export interface PlayerCompetitionStats {
 export interface PlayerProfile {
   bio: PlayerBio;
   stats: PlayerCompetitionStats[];
+}
+
+export interface TeamProfile {
+  id: number;
+  name: string;
+  logo: string;
+  country: string;
+  founded: number | null;
+  venueName: string | null;
+  venueCity: string | null;
+}
+
+export interface TeamStats {
+  played: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  cleanSheets: number;
+  form: string;
 }

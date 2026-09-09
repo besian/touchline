@@ -101,6 +101,23 @@ export function getPlayerProfile(playerId: number) {
   );
 }
 
+export function getTeamProfile(teamId: number) {
+  return cached(`team-profile:${teamId}`, 60 * 60_000, () => request<unknown[]>("/teams", { id: teamId }));
+}
+
+export function getTeamStatistics(teamId: number) {
+  return cached(`team-stats:${teamId}`, 15 * 60_000, () =>
+    request<unknown>("/teams/statistics", { team: teamId, league: config.leagueId, season: config.season })
+  );
+}
+
+/** A team's most recent results across all competitions (not just the configured league). */
+export function getTeamFixtures(teamId: number, last: number) {
+  return cached(`team-fixtures:${teamId}:${last}`, 5 * 60_000, () =>
+    request<unknown[]>("/fixtures", { team: teamId, last })
+  );
+}
+
 /** The league's current round name (e.g. "League Stage - 3"), needed to ask for "this round"'s fixtures. */
 export function getCurrentRound() {
   return cached(`current-round`, 5 * 60_000, () =>

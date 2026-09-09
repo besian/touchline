@@ -1,4 +1,14 @@
-import type { Fixture, Lineup, MatchEvent, OddsMarket, PlayerProfile, PlayerSeasonStats, StatPair } from "./types.js";
+import type {
+  Fixture,
+  Lineup,
+  MatchEvent,
+  OddsMarket,
+  PlayerProfile,
+  PlayerSeasonStats,
+  StatPair,
+  TeamProfile,
+  TeamStats,
+} from "./types.js";
 
 // The API-Football response shapes are large and only partially documented;
 // these helpers pick out exactly the fields Touchline renders.
@@ -8,6 +18,7 @@ export function normalizeFixture(raw: any): Fixture {
   return {
     id: raw.fixture.id,
     round: raw.league.round,
+    competitionName: raw.league?.name,
     status: raw.fixture.status.short,
     elapsed: raw.fixture.status.elapsed,
     kickoff: raw.fixture.date,
@@ -179,5 +190,32 @@ export function normalizePlayerProfile(raw: any): PlayerProfile {
       yellowCards: stat.cards?.yellow ?? 0,
       redCards: stat.cards?.red ?? 0,
     })),
+  };
+}
+
+export function normalizeTeamProfile(raw: any): TeamProfile {
+  const t = raw.team;
+  const v = raw.venue;
+  return {
+    id: t.id,
+    name: t.name,
+    logo: t.logo,
+    country: t.country,
+    founded: t.founded ?? null,
+    venueName: v?.name ?? null,
+    venueCity: v?.city ?? null,
+  };
+}
+
+export function normalizeTeamStats(raw: any): TeamStats {
+  return {
+    played: raw?.fixtures?.played?.total ?? 0,
+    wins: raw?.fixtures?.wins?.total ?? 0,
+    draws: raw?.fixtures?.draws?.total ?? 0,
+    losses: raw?.fixtures?.loses?.total ?? 0,
+    goalsFor: raw?.goals?.for?.total?.total ?? 0,
+    goalsAgainst: raw?.goals?.against?.total?.total ?? 0,
+    cleanSheets: raw?.clean_sheet?.total ?? 0,
+    form: raw?.form ?? "",
   };
 }
