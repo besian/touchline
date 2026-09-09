@@ -8,6 +8,7 @@ import { Markets } from "./Markets";
 import { LiveFeed } from "./LiveFeed";
 import { MatchStats } from "./MatchStats";
 import { MatchPlayerStats } from "./MatchPlayerStats";
+import { PlayerMatchModal } from "./PlayerMatchModal";
 import { findMarket, findPrice, impliedProbabilities } from "../../lib/odds";
 import { scoreText, statusInfo } from "../../lib/format";
 import type { PlayerMatchStats } from "../../types";
@@ -24,6 +25,7 @@ export function MatchView({
   onSelectTeam: (teamId: number) => void;
 }) {
   const [side, setSide] = useState<"both" | "home" | "away">("both");
+  const [modalPlayerId, setModalPlayerId] = useState<number | null>(null);
 
   const { data: fixture } = usePolling(() => api.fixture(fixtureId), 15_000, [fixtureId]);
   const { data: lineups } = usePolling(() => api.lineups(fixtureId), 60_000, [fixtureId]);
@@ -173,7 +175,7 @@ export function MatchView({
               {homeLineup?.formation ?? "—"} · {awayLineup?.formation ?? "—"}
             </span>
             <div style={{ flex: 1 }} />
-            <span style={{ fontSize: 11, color: "var(--color-neutral-600)" }}>Hover a player for form</span>
+            <span style={{ fontSize: 11, color: "var(--color-neutral-600)" }}>Hover a player for form, click for full stats</span>
           </div>
 
           {homeLineup || awayLineup ? (
@@ -184,7 +186,7 @@ export function MatchView({
               awayTeamId={fixture.away.id}
               side={side}
               playerStats={playerStats}
-              onSelectPlayer={onSelectPlayer}
+              onSelectPlayer={setModalPlayerId}
             />
           ) : (
             <div style={{ padding: 24, borderRadius: "var(--radius-lg)", background: "var(--color-surface)", textAlign: "center" }}>
@@ -200,7 +202,7 @@ export function MatchView({
             homeTeamId={fixture.home.id}
             awayTeamId={fixture.away.id}
             players={matchPlayerStats ?? []}
-            onSelectPlayer={onSelectPlayer}
+            onSelectPlayer={setModalPlayerId}
           />
         </div>
 
@@ -209,6 +211,24 @@ export function MatchView({
           <MatchStats stats={stats ?? []} />
         </div>
       </div>
+
+      {modalPlayerId != null &&
+        (() => {
+          const p = playerStats.get(modalPlayerId);
+          if (!p) return null;
+          const teamName = p.teamId === fixture.home.id ? fixture.home.name : fixture.away.name;
+          return (
+            <PlayerMatchModal
+              player={p}
+              teamName={teamName}
+              onClose={() => setModalPlayerId(null)}
+              onViewProfile={() => {
+                setModalPlayerId(null);
+                onSelectPlayer(modalPlayerId);
+              }}
+            />
+          );
+        })()}
     </div>
   );
 }
