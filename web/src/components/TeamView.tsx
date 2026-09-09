@@ -9,11 +9,13 @@ export function TeamView({
   onBack,
   onSelectPlayer,
   onSelectTeam,
+  onOpenMatch,
 }: {
   teamId: number;
   onBack: () => void;
   onSelectPlayer: (playerId: number) => void;
   onSelectTeam: (teamId: number) => void;
+  onOpenMatch: (fixtureId: number) => void;
 }) {
   const { data: profile, error, loading } = usePolling(() => api.teamProfile(teamId), 60 * 60_000, [teamId]);
   const { data: stats } = usePolling(() => api.teamStatistics(teamId), 15 * 60_000, [teamId]);
@@ -105,13 +107,24 @@ export function TeamView({
                   return (
                     <div
                       key={f.id}
+                      className="tl-player-clickable"
+                      onClick={() => onOpenMatch(f.id)}
                       style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderBottom: "1px solid var(--color-divider)" }}
                     >
                       <span style={{ fontSize: 10, color: "var(--color-neutral-600)", width: 28 }}>{isHome ? "H" : "A"}</span>
-                      <TeamCrest id={opponent.id} logo={opponent.logo} name={opponent.name} size={18} />
                       <span
-                        className="tl-player-clickable"
-                        onClick={() => onSelectTeam(opponent.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSelectTeam(opponent.id);
+                        }}
+                      >
+                        <TeamCrest id={opponent.id} logo={opponent.logo} name={opponent.name} size={18} />
+                      </span>
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSelectTeam(opponent.id);
+                        }}
                         style={{ flex: 1, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
                       >
                         {opponent.name}

@@ -8,12 +8,12 @@ const ICONS: Record<MatchEvent["type"], { Icon: typeof SoccerBall; tint: string 
   info: { Icon: Info, tint: "var(--color-neutral-600)" },
 };
 
-export function LiveFeed({ events }: { events: MatchEvent[] }) {
+export function LiveFeed({ events, title = "Live feed" }: { events: MatchEvent[]; title?: string }) {
   const shown = [...events].reverse();
   return (
     <div style={{ padding: 16, borderRadius: "var(--radius-md)", background: "var(--color-surface)", boxShadow: "var(--shadow-sm)" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-        <span style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-neutral-500)" }}>Live feed</span>
+        <span style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-neutral-500)" }}>{title}</span>
         <span style={{ fontSize: 11, color: "var(--color-neutral-600)", fontVariantNumeric: "tabular-nums" }}>{events.length} events</span>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2, maxHeight: 308, overflowY: "auto" }}>

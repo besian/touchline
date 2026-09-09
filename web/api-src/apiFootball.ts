@@ -65,6 +65,12 @@ export function getFixtureEvents(fixtureId: number) {
   );
 }
 
+export function getFixturePlayerStats(fixtureId: number) {
+  return cached(`fixture-players:${fixtureId}`, 15_000, () =>
+    request<unknown[]>("/fixtures/players", { fixture: fixtureId })
+  );
+}
+
 export function getFixtureStatistics(fixtureId: number) {
   return cached(`stats:${fixtureId}`, 15_000, () =>
     request<unknown[]>("/fixtures/statistics", { fixture: fixtureId })

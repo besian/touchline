@@ -3,6 +3,7 @@ import type {
   Lineup,
   MatchEvent,
   OddsMarket,
+  PlayerMatchStats,
   PlayerProfile,
   PlayerSeasonStats,
   StatPair,
@@ -191,6 +192,31 @@ export function normalizePlayerProfile(raw: any): PlayerProfile {
       redCards: stat.cards?.red ?? 0,
     })),
   };
+}
+
+export function normalizeFixturePlayerStats(raw: any[]): PlayerMatchStats[] {
+  return raw.flatMap((teamBlock) =>
+    (teamBlock.players ?? []).map((p: any) => {
+      const stat = (p.statistics ?? [])[0] ?? {};
+      return {
+        id: p.player.id,
+        teamId: teamBlock.team.id,
+        name: p.player.name,
+        number: stat.games?.number ?? null,
+        position: stat.games?.position ?? "",
+        minutes: stat.games?.minutes ?? 0,
+        rating: stat.games?.rating ? parseFloat(stat.games.rating) : null,
+        goals: stat.goals?.total ?? 0,
+        assists: stat.goals?.assists ?? 0,
+        shots: stat.shots?.total ?? 0,
+        shotsOnTarget: stat.shots?.on ?? 0,
+        passAccuracy: stat.passes?.accuracy != null ? parseFloat(stat.passes.accuracy) : null,
+        fouls: stat.fouls?.committed ?? 0,
+        yellowCards: stat.cards?.yellow ?? 0,
+        redCards: stat.cards?.red ?? 0,
+      } satisfies PlayerMatchStats;
+    })
+  );
 }
 
 export function normalizeTeamProfile(raw: any): TeamProfile {

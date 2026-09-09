@@ -7,9 +7,10 @@ import { Pitch } from "./Pitch";
 import { Markets } from "./Markets";
 import { LiveFeed } from "./LiveFeed";
 import { MatchStats } from "./MatchStats";
+import { MatchPlayerStats } from "./MatchPlayerStats";
 import { findMarket, findPrice, impliedProbabilities } from "../../lib/odds";
 import { scoreText, statusInfo } from "../../lib/format";
-import type { PlayerSeasonStats } from "../../types";
+import type { PlayerMatchStats } from "../../types";
 
 export function MatchView({
   fixtureId,
@@ -33,22 +34,17 @@ export function MatchView({
     10_000,
     [fixtureId, fixture?.home.id]
   );
-  const { data: homePlayers } = usePolling(
-    () => (fixture ? api.teamPlayers(fixture.home.id) : Promise.resolve([])),
-    5 * 60_000,
-    [fixture?.home.id]
-  );
-  const { data: awayPlayers } = usePolling(
-    () => (fixture ? api.teamPlayers(fixture.away.id) : Promise.resolve([])),
-    5 * 60_000,
-    [fixture?.away.id]
+  const { data: matchPlayerStats } = usePolling(
+    () => api.fixturePlayerStats(fixtureId),
+    15_000,
+    [fixtureId]
   );
 
   const playerStats = useMemo(() => {
-    const map = new Map<number, PlayerSeasonStats>();
-    for (const p of [...(homePlayers ?? []), ...(awayPlayers ?? [])]) map.set(p.id, p);
+    const map = new Map<number, PlayerMatchStats>();
+    for (const p of matchPlayerStats ?? []) map.set(p.id, p);
     return map;
-  }, [homePlayers, awayPlayers]);
+  }, [matchPlayerStats]);
 
   const homeLineup = lineups?.find((l) => l.teamId === fixture?.home.id);
   const awayLineup = lineups?.find((l) => l.teamId === fixture?.away.id);
@@ -126,29 +122,31 @@ export function MatchView({
               </div>
             </div>
 
-            <div style={{ marginTop: 20 }}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontSize: 11,
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  color: "var(--color-neutral-500)",
-                  marginBottom: 7,
-                }}
-              >
-                <span>Win probability</span>
-                <span>
-                  {prob.home.toFixed(0)}% · {prob.draw.toFixed(0)}% · {prob.away.toFixed(0)}%
-                </span>
+            {!status.isFinished && (home?.odd || draw?.odd || away?.odd) && (
+              <div style={{ marginTop: 20 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontSize: 11,
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    color: "var(--color-neutral-500)",
+                    marginBottom: 7,
+                  }}
+                >
+                  <span>Win probability</span>
+                  <span>
+                    {prob.home.toFixed(0)}% · {prob.draw.toFixed(0)}% · {prob.away.toFixed(0)}%
+                  </span>
+                </div>
+                <div style={{ display: "flex", height: 10, borderRadius: 20, overflow: "hidden", background: "var(--color-neutral-900)" }}>
+                  <div style={{ width: `${prob.home}%`, background: "linear-gradient(90deg, var(--color-accent-500), var(--color-accent-400))", transition: "width 0.9s cubic-bezier(.2,.8,.2,1)" }} />
+                  <div style={{ width: `${prob.draw}%`, background: "var(--color-neutral-700)", transition: "width 0.9s cubic-bezier(.2,.8,.2,1)" }} />
+                  <div style={{ width: `${prob.away}%`, background: "linear-gradient(90deg, var(--color-neutral-500), var(--color-neutral-400))", transition: "width 0.9s cubic-bezier(.2,.8,.2,1)" }} />
+                </div>
               </div>
-              <div style={{ display: "flex", height: 10, borderRadius: 20, overflow: "hidden", background: "var(--color-neutral-900)" }}>
-                <div style={{ width: `${prob.home}%`, background: "linear-gradient(90deg, var(--color-accent-500), var(--color-accent-400))", transition: "width 0.9s cubic-bezier(.2,.8,.2,1)" }} />
-                <div style={{ width: `${prob.draw}%`, background: "var(--color-neutral-700)", transition: "width 0.9s cubic-bezier(.2,.8,.2,1)" }} />
-                <div style={{ width: `${prob.away}%`, background: "linear-gradient(90deg, var(--color-neutral-500), var(--color-neutral-400))", transition: "width 0.9s cubic-bezier(.2,.8,.2,1)" }} />
-              </div>
-            </div>
+            )}
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }}>
@@ -194,11 +192,20 @@ export function MatchView({
             </div>
           )}
 
-          <Markets fixtureId={fixtureId} matchLabel={matchLabel} markets={markets ?? []} />
+          {!status.isFinished && <Markets fixtureId={fixtureId} matchLabel={matchLabel} markets={markets ?? []} />}
+
+          <MatchPlayerStats
+            homeName={fixture.home.name}
+            awayName={fixture.away.name}
+            homeTeamId={fixture.home.id}
+            awayTeamId={fixture.away.id}
+            players={matchPlayerStats ?? []}
+            onSelectPlayer={onSelectPlayer}
+          />
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-6)", position: "sticky", top: 84 }}>
-          <LiveFeed events={events ?? []} />
+          <LiveFeed events={events ?? []} title={status.isFinished ? "Match events" : "Live feed"} />
           <MatchStats stats={stats ?? []} />
         </div>
       </div>

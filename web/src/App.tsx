@@ -12,7 +12,7 @@ import { useCurrentRound } from "./hooks/useCurrentRound";
 
 export type View = "fixtures" | "match" | "stats" | "player" | "team";
 
-const OVERLAY_VIEWS: View[] = ["player", "team"];
+const OVERLAY_VIEWS: View[] = ["player", "team", "match"];
 
 function AppShell() {
   const [view, setView] = useState<View>("fixtures");
@@ -23,6 +23,7 @@ function AppShell() {
   const round = useCurrentRound();
 
   const openMatch = (id: number) => {
+    setReturnView((v) => (OVERLAY_VIEWS.includes(view) ? v : view));
     setMatchId(id);
     setView("match");
   };
@@ -52,14 +53,20 @@ function AppShell() {
 
       {view === "fixtures" && <FixturesView round={round} onOpen={openMatch} onSelectTeam={openTeam} />}
       {view === "match" && matchId != null && (
-        <MatchView fixtureId={matchId} onBack={() => setView("fixtures")} onSelectPlayer={openPlayer} onSelectTeam={openTeam} />
+        <MatchView fixtureId={matchId} onBack={() => setView(returnView)} onSelectPlayer={openPlayer} onSelectTeam={openTeam} />
       )}
-      {view === "stats" && <StatsView onSelectPlayer={openPlayer} onSelectTeam={openTeam} />}
+      {view === "stats" && <StatsView onSelectPlayer={openPlayer} onSelectTeam={openTeam} onOpenMatch={openMatch} />}
       {view === "player" && playerId != null && (
         <PlayerView playerId={playerId} onBack={() => setView(returnView)} onSelectTeam={openTeam} />
       )}
       {view === "team" && teamId != null && (
-        <TeamView teamId={teamId} onBack={() => setView(returnView)} onSelectPlayer={openPlayer} onSelectTeam={openTeam} />
+        <TeamView
+          teamId={teamId}
+          onBack={() => setView(returnView)}
+          onSelectPlayer={openPlayer}
+          onSelectTeam={openTeam}
+          onOpenMatch={openMatch}
+        />
       )}
 
       <BetSlip />

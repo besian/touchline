@@ -6,6 +6,7 @@ import {
   getFixtureEvents,
   getFixtureLineups,
   getFixtureOdds,
+  getFixturePlayerStats,
   getFixtures,
   getFixtureStatistics,
   getPlayerProfile,
@@ -20,6 +21,7 @@ import {
 import {
   normalizeEvents,
   normalizeFixture,
+  normalizeFixturePlayerStats,
   normalizeLineups,
   normalizeOdds,
   normalizePlayerProfile,
@@ -126,6 +128,15 @@ router.get("/fixtures/:id/statistics", async (req, res) => {
   try {
     const raw = await getFixtureStatistics(Number(req.params.id));
     res.json(normalizeStatistics(raw));
+  } catch (err) {
+    handleError(res, err);
+  }
+});
+
+router.get("/fixtures/:id/players", async (req, res) => {
+  try {
+    const raw = await getFixturePlayerStats(Number(req.params.id));
+    res.json(normalizeFixturePlayerStats(raw));
   } catch (err) {
     handleError(res, err);
   }

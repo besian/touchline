@@ -123,6 +123,24 @@ export interface TeamProfile {
   venueCity: string | null;
 }
 
+export interface PlayerMatchStats {
+  id: number;
+  teamId: number;
+  name: string;
+  number: number | null;
+  position: string;
+  minutes: number;
+  rating: number | null;
+  goals: number;
+  assists: number;
+  shots: number;
+  shotsOnTarget: number;
+  passAccuracy: number | null;
+  fouls: number;
+  yellowCards: number;
+  redCards: number;
+}
+
 export interface TeamStats {
   played: number;
   wins: number;

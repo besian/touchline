@@ -4,6 +4,7 @@ import type {
   MatchEvent,
   OddsMarket,
   PastResult,
+  PlayerMatchStats,
   PlayerProfile,
   PlayerSeasonStats,
   StatPair,
@@ -32,6 +33,7 @@ export const api = {
   events: (fixtureId: number, homeTeamId: number) =>
     get<MatchEvent[]>(`/fixtures/${fixtureId}/events?homeTeamId=${homeTeamId}`),
   statistics: (fixtureId: number) => get<StatPair[]>(`/fixtures/${fixtureId}/statistics`),
+  fixturePlayerStats: (fixtureId: number) => get<PlayerMatchStats[]>(`/fixtures/${fixtureId}/players`),
   odds: (fixtureId: number) => get<OddsMarket[]>(`/fixtures/${fixtureId}/odds`),
   players: (pages = 4) => get<PlayerSeasonStats[]>(`/players?pages=${pages}`),
   teamPlayers: (teamId: number) => get<PlayerSeasonStats[]>(`/teams/${teamId}/players`),

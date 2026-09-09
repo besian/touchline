@@ -1,7 +1,7 @@
-import type { LineupPlayer, PlayerSeasonStats } from "../../types";
+import type { LineupPlayer, PlayerMatchStats } from "../../types";
 import type { TokenPos } from "../../lib/formation";
 
-export function HoverCard({ player, pos, stats }: { player: LineupPlayer; pos: TokenPos; stats: PlayerSeasonStats | undefined }) {
+export function HoverCard({ player, pos, stats }: { player: LineupPlayer; pos: TokenPos; stats: PlayerMatchStats | undefined }) {
   return (
     <div
       className="tl-fade-in"
@@ -53,8 +53,8 @@ export function HoverCard({ player, pos, stats }: { player: LineupPlayer; pos: T
         }}
       >
         {stats
-          ? `Season: ${stats.goals}G · ${stats.assists}A · ${stats.shots} shots (${stats.shotsOnTarget} on target) · ${stats.fouls} fouls`
-          : "No season stats yet"}
+          ? `This match: ${stats.goals}G · ${stats.assists}A · ${stats.shots} shots (${stats.shotsOnTarget} on target) · ${stats.fouls} fouls`
+          : "No stats recorded yet"}
       </div>
     </div>
   );

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { layoutFormation } from "../../lib/formation";
 import { PlayerToken } from "./PlayerToken";
 import { HoverCard } from "./HoverCard";
-import type { Lineup, LineupPlayer, PlayerSeasonStats } from "../../types";
+import type { Lineup, LineupPlayer, PlayerMatchStats } from "../../types";
 
 interface HoverState {
   player: LineupPlayer;
@@ -23,7 +23,7 @@ export function Pitch({
   homeTeamId: number;
   awayTeamId: number;
   side: "both" | "home" | "away";
-  playerStats: Map<number, PlayerSeasonStats>;
+  playerStats: Map<number, PlayerMatchStats>;
   onSelectPlayer: (playerId: number) => void;
 }) {
   const [hover, setHover] = useState<HoverState | null>(null);

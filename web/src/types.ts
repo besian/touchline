@@ -113,6 +113,24 @@ export interface PlayerProfile {
   stats: PlayerCompetitionStats[];
 }
 
+export interface PlayerMatchStats {
+  id: number;
+  teamId: number;
+  name: string;
+  number: number | null;
+  position: string;
+  minutes: number;
+  rating: number | null;
+  goals: number;
+  assists: number;
+  shots: number;
+  shotsOnTarget: number;
+  passAccuracy: number | null;
+  fouls: number;
+  yellowCards: number;
+  redCards: number;
+}
+
 export interface TeamProfile {
   id: number;
   name: string;

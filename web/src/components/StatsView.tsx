@@ -41,9 +41,11 @@ function metric(p: PlayerSeasonStats, key: SortKey): number | string {
 export function StatsView({
   onSelectPlayer,
   onSelectTeam,
+  onOpenMatch,
 }: {
   onSelectPlayer: (playerId: number) => void;
   onSelectTeam: (teamId: number) => void;
+  onOpenMatch: (fixtureId: number) => void;
 }) {
   const [sortKey, setSortKey] = useState<SortKey>("g");
   const [sortDir, setSortDir] = useState<1 | -1>(-1);
@@ -254,7 +256,12 @@ export function StatsView({
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
             {(pastResults ?? []).map((p) => (
-              <div key={p.id} style={{ padding: "10px 4px", borderBottom: "1px solid var(--color-divider)" }}>
+              <div
+                key={p.id}
+                className="tl-player-clickable"
+                onClick={() => onOpenMatch(p.id)}
+                style={{ padding: "10px 4px", borderBottom: "1px solid var(--color-divider)" }}
+              >
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <span style={{ fontSize: 9, letterSpacing: "0.08em", color: "var(--color-neutral-700)", width: 24 }}>{p.round.replace(/^.*- /, "R")}</span>
                   <TeamCrest id={p.home.id} logo={p.home.logo} name={p.home.name} size={12} />
