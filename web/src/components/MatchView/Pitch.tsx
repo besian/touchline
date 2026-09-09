@@ -16,6 +16,7 @@ export function Pitch({
   awayTeamId,
   side,
   playerStats,
+  onSelectPlayer,
 }: {
   homeLineup: Lineup | undefined;
   awayLineup: Lineup | undefined;
@@ -23,6 +24,7 @@ export function Pitch({
   awayTeamId: number;
   side: "both" | "home" | "away";
   playerStats: Map<number, PlayerSeasonStats>;
+  onSelectPlayer: (playerId: number) => void;
 }) {
   const [hover, setHover] = useState<HoverState | null>(null);
 
@@ -39,6 +41,7 @@ export function Pitch({
         index={i}
         onEnter={() => setHover({ player, pos: positions[i] })}
         onLeave={() => setHover(null)}
+        onClick={() => onSelectPlayer(player.id)}
       />
     ));
   };

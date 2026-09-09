@@ -1,15 +1,18 @@
 import { Receipt } from "@phosphor-icons/react";
 import { useBetSlip } from "../state/BetSlipContext";
+import { PlayerSearch } from "./PlayerSearch";
 import type { View } from "../App";
 
 export function Header({
   view,
   onNavigate,
   roundLabel,
+  onSelectPlayer,
 }: {
   view: View;
   onNavigate: (v: "fixtures" | "stats") => void;
   roundLabel: string;
+  onSelectPlayer: (playerId: number) => void;
 }) {
   const { slip, toggleSlip } = useBetSlip();
   const tabs: { key: "fixtures" | "stats"; label: string }[] = [
@@ -79,6 +82,8 @@ export function Header({
           );
         })}
       </div>
+
+      <PlayerSearch onSelect={onSelectPlayer} />
 
       <span style={{ fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-neutral-500)" }}>
         {roundLabel}

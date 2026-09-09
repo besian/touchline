@@ -11,7 +11,15 @@ import { findMarket, findPrice, impliedProbabilities } from "../../lib/odds";
 import { scoreText, statusInfo } from "../../lib/format";
 import type { PlayerSeasonStats } from "../../types";
 
-export function MatchView({ fixtureId, onBack }: { fixtureId: number; onBack: () => void }) {
+export function MatchView({
+  fixtureId,
+  onBack,
+  onSelectPlayer,
+}: {
+  fixtureId: number;
+  onBack: () => void;
+  onSelectPlayer: (playerId: number) => void;
+}) {
   const [side, setSide] = useState<"both" | "home" | "away">("both");
 
   const { data: fixture } = usePolling(() => api.fixture(fixtureId), 15_000, [fixtureId]);
@@ -164,6 +172,7 @@ export function MatchView({ fixtureId, onBack }: { fixtureId: number; onBack: ()
               awayTeamId={fixture.away.id}
               side={side}
               playerStats={playerStats}
+              onSelectPlayer={onSelectPlayer}
             />
           ) : (
             <div style={{ padding: 24, borderRadius: "var(--radius-lg)", background: "var(--color-surface)", textAlign: "center" }}>

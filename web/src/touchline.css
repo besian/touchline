@@ -88,3 +88,8 @@ button { font: inherit; }
   font-size: 13px; padding: 2px; transition: color 0.15s ease;
 }
 .tl-remove-pick:hover { color: var(--color-accent-300); }
+
+.tl-search-result:hover { background: color-mix(in srgb, var(--color-text) 6%, transparent); }
+
+.tl-player-clickable { cursor: pointer; }
+.tl-player-clickable:hover .tl-player-name { color: var(--color-accent-300) !important; }

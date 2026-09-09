@@ -1,4 +1,13 @@
-import type { Fixture, Lineup, MatchEvent, OddsMarket, PastResult, PlayerSeasonStats, StatPair } from "./types";
+import type {
+  Fixture,
+  Lineup,
+  MatchEvent,
+  OddsMarket,
+  PastResult,
+  PlayerProfile,
+  PlayerSeasonStats,
+  StatPair,
+} from "./types";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8787/api";
 
@@ -24,4 +33,6 @@ export const api = {
   odds: (fixtureId: number) => get<OddsMarket[]>(`/fixtures/${fixtureId}/odds`),
   players: (pages = 4) => get<PlayerSeasonStats[]>(`/players?pages=${pages}`),
   teamPlayers: (teamId: number) => get<PlayerSeasonStats[]>(`/teams/${teamId}/players`),
+  searchPlayers: (q: string) => get<PlayerSeasonStats[]>(`/players/search?q=${encodeURIComponent(q)}`),
+  playerProfile: (playerId: number) => get<PlayerProfile>(`/players/${playerId}`),
 };

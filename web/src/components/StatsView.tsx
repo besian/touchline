@@ -38,7 +38,7 @@ function metric(p: PlayerSeasonStats, key: SortKey): number | string {
   }
 }
 
-export function StatsView() {
+export function StatsView({ onSelectPlayer }: { onSelectPlayer: (playerId: number) => void }) {
   const [sortKey, setSortKey] = useState<SortKey>("g");
   const [sortDir, setSortDir] = useState<1 | -1>(-1);
   const [club, setClub] = useState<number | "all">("all");
@@ -166,7 +166,8 @@ export function StatsView() {
             return (
               <div
                 key={r.id}
-                className="tl-stat-row"
+                className="tl-stat-row tl-player-clickable"
+                onClick={() => onSelectPlayer(r.id)}
                 style={{
                   display: "grid",
                   gridTemplateColumns: `30px ${gridTemplate}`,
@@ -194,6 +195,7 @@ export function StatsView() {
                   <TeamCrest id={r.teamId} logo="" name={r.teamName} size={16} />
                   <span style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
                     <span
+                      className="tl-player-name"
                       style={{
                         fontFamily: "var(--font-heading)",
                         fontSize: 14,

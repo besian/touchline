@@ -10,6 +10,7 @@ export function PlayerToken({
   index,
   onEnter,
   onLeave,
+  onClick,
 }: {
   player: LineupPlayer;
   pos: TokenPos;
@@ -18,6 +19,7 @@ export function PlayerToken({
   index: number;
   onEnter: () => void;
   onLeave: () => void;
+  onClick: () => void;
 }) {
   const clubColor = colorFromId(teamId);
   const fill = isHome ? clubColor : "#1b1e2c";
@@ -30,6 +32,7 @@ export function PlayerToken({
       className="tl-player-token"
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
+      onClick={onClick}
       style={{
         position: "absolute",
         left: `${pos.x}%`,
@@ -41,7 +44,7 @@ export function PlayerToken({
         gap: 4,
         animation: "tl-token 0.5s cubic-bezier(.2,.9,.2,1) both",
         animationDelay: `${(isHome ? 0 : 120) + index * 45}ms`,
-        cursor: "default",
+        cursor: "pointer",
         zIndex: 10,
       }}
     >
