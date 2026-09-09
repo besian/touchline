@@ -1,4 +1,4 @@
-// Catch-all Vercel function for /api/*, delegating to the built Express app (requires `npm run build:api` first).
-import { app } from "../api-dist/app.js";
+// Catch-all Vercel function for /api/*, delegating to the Express app in api-src/.
+import { app } from "../api-src/app.js";
 
 export default app;

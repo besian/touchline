@@ -15,8 +15,9 @@ Everything lives in `web/` as a single deployable project:
 - `web/src/` — React + Vite + TypeScript frontend.
 - `web/api-src/` — Express + TypeScript backend that proxies [API-Football](https://www.api-football.com/)
   (fixtures, lineups, live events, match statistics, odds, and player season statistics) and holds the API key
-  server-side. Compiles to `web/api-dist/`.
-- `web/api/[...path].ts` — the Vercel serverless function entry point; delegates to the built backend above.
+  server-side.
+- `web/api/[...path].ts` — the Vercel serverless function entry point; delegates to `api-src/app.ts` directly
+  (Vercel's Node runtime compiles the TypeScript itself — no separate backend build step).
 - `project/`, `chats/` — the original Claude Design handoff bundle (prototype HTML/CSS/JS, not used at runtime).
 
 ## Running it locally
@@ -40,11 +41,9 @@ year — set it explicitly if your plan needs the season the competition actuall
 
 ## Deploying to Vercel
 
-One project, one import — pick `web` as the directory when Vercel asks (it auto-detects Vite).
-
-`vercel.json`'s `buildCommand` (`npm run build:api && npm run build`) compiles the backend to `api-dist/` and
-then builds the frontend, so `web/api/[...path].ts` has something to import. No separate backend project or
-`CORS_ORIGIN` juggling needed — the API is served from the same domain as the site, at `/api/*`.
+One project, one import — pick `web` as the directory when Vercel asks (it auto-detects Vite; no `vercel.json`
+needed). No separate backend project or `CORS_ORIGIN` juggling needed — the API is served from the same domain
+as the site, at `/api/*`.
 
 Set these environment variables on the project:
 
