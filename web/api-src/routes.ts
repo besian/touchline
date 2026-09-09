@@ -8,15 +8,18 @@ import {
   getFixtureOdds,
   getFixtures,
   getFixtureStatistics,
+  getPlayerProfile,
   getPlayerStatistics,
   getPlayersByTeam,
   getStandings,
+  searchPlayers,
 } from "./apiFootball.js";
 import {
   normalizeEvents,
   normalizeFixture,
   normalizeLineups,
   normalizeOdds,
+  normalizePlayerProfile,
   normalizePlayerStats,
   normalizeStatistics,
   summarizeScorers,
@@ -139,6 +142,33 @@ router.get("/players", async (req, res) => {
     const pages = Math.min(Number(req.query.pages) || 4, 10);
     const results = await Promise.all(Array.from({ length: pages }, (_, i) => getPlayerStatistics(i + 1)));
     res.json(normalizePlayerStats(results.flat()));
+  } catch (err) {
+    handleError(res, err);
+  }
+});
+
+router.get("/players/search", async (req, res) => {
+  try {
+    const q = typeof req.query.q === "string" ? req.query.q.trim() : "";
+    if (q.length < 3) {
+      res.json([]);
+      return;
+    }
+    const raw = await searchPlayers(q);
+    res.json(normalizePlayerStats(raw));
+  } catch (err) {
+    handleError(res, err);
+  }
+});
+
+router.get("/players/:id", async (req, res) => {
+  try {
+    const raw = await getPlayerProfile(Number(req.params.id));
+    if (raw.length === 0) {
+      res.status(404).json({ error: "Player not found" });
+      return;
+    }
+    res.json(normalizePlayerProfile(raw[0]));
   } catch (err) {
     handleError(res, err);
   }

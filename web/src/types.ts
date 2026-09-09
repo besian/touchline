@@ -75,5 +75,42 @@ export interface PlayerSeasonStats {
   passAccuracy: number | null;
 }
 
+export interface PlayerBio {
+  id: number;
+  name: string;
+  firstname: string;
+  lastname: string;
+  age: number | null;
+  nationality: string;
+  height: string | null;
+  weight: string | null;
+  photo: string;
+}
+
+export interface PlayerCompetitionStats {
+  teamId: number;
+  teamName: string;
+  teamLogo: string;
+  leagueName: string;
+  leagueLogo: string;
+  appearances: number;
+  minutes: number;
+  position: string;
+  rating: number | null;
+  goals: number;
+  assists: number;
+  shots: number;
+  shotsOnTarget: number;
+  passAccuracy: number | null;
+  fouls: number;
+  yellowCards: number;
+  redCards: number;
+}
+
+export interface PlayerProfile {
+  bio: PlayerBio;
+  stats: PlayerCompetitionStats[];
+}
+
 export const LIVE_STATUSES = new Set(["1H", "HT", "2H", "ET", "P", "BT"]);
 export const FINISHED_STATUSES = new Set(["FT", "AET", "PEN"]);

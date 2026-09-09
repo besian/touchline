@@ -89,6 +89,18 @@ export function getPlayersByTeam(teamId: number, page: number) {
   );
 }
 
+export function searchPlayers(query: string) {
+  return cached(`players-search:${query}`, 5 * 60_000, () =>
+    request<unknown[]>("/players", { search: query, league: config.leagueId, season: config.season })
+  );
+}
+
+export function getPlayerProfile(playerId: number) {
+  return cached(`player-profile:${playerId}`, 5 * 60_000, () =>
+    request<unknown[]>("/players", { id: playerId, season: config.season })
+  );
+}
+
 /** The league's current round name (e.g. "League Stage - 3"), needed to ask for "this round"'s fixtures. */
 export function getCurrentRound() {
   return cached(`current-round`, 5 * 60_000, () =>

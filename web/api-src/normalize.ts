@@ -1,4 +1,4 @@
-import type { Fixture, Lineup, MatchEvent, OddsMarket, PlayerSeasonStats, StatPair } from "./types.js";
+import type { Fixture, Lineup, MatchEvent, OddsMarket, PlayerProfile, PlayerSeasonStats, StatPair } from "./types.js";
 
 // The API-Football response shapes are large and only partially documented;
 // these helpers pick out exactly the fields Touchline renders.
@@ -144,4 +144,40 @@ export function normalizePlayerStats(raw: any[]): PlayerSeasonStats[] {
       } satisfies PlayerSeasonStats;
     })
     .filter((p): p is PlayerSeasonStats => p !== null);
+}
+
+export function normalizePlayerProfile(raw: any): PlayerProfile {
+  const p = raw.player;
+  return {
+    bio: {
+      id: p.id,
+      name: p.name,
+      firstname: p.firstname ?? "",
+      lastname: p.lastname ?? "",
+      age: p.age ?? null,
+      nationality: p.nationality ?? "",
+      height: p.height ?? null,
+      weight: p.weight ?? null,
+      photo: p.photo,
+    },
+    stats: (raw.statistics ?? []).map((stat: any) => ({
+      teamId: stat.team?.id,
+      teamName: stat.team?.name,
+      teamLogo: stat.team?.logo,
+      leagueName: stat.league?.name,
+      leagueLogo: stat.league?.logo,
+      appearances: stat.games?.appearences ?? 0,
+      minutes: stat.games?.minutes ?? 0,
+      position: stat.games?.position ?? "",
+      rating: stat.games?.rating ? parseFloat(stat.games.rating) : null,
+      goals: stat.goals?.total ?? 0,
+      assists: stat.goals?.assists ?? 0,
+      shots: stat.shots?.total ?? 0,
+      shotsOnTarget: stat.shots?.on ?? 0,
+      passAccuracy: stat.passes?.accuracy != null ? parseFloat(stat.passes.accuracy) : null,
+      fouls: stat.fouls?.committed ?? 0,
+      yellowCards: stat.cards?.yellow ?? 0,
+      redCards: stat.cards?.red ?? 0,
+    })),
+  };
 }
