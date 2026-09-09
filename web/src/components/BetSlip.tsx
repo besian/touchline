@@ -12,7 +12,7 @@ export function BetSlip() {
     <div
       style={{
         position: "fixed",
-        top: 0,
+        top: 62,
         right: 0,
         bottom: 0,
         width: 352,

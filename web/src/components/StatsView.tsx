@@ -249,7 +249,7 @@ export function StatsView({
           )}
         </div>
 
-        <div style={{ flex: "1 1 300px", minWidth: 0, padding: 16, borderRadius: "var(--radius-md)", background: "var(--color-surface)", boxShadow: "var(--shadow-sm)" }}>
+        <div style={{ flex: "1 1 300px", minWidth: 0, padding: 16, borderRadius: "var(--radius-md)", background: "var(--color-surface)", boxShadow: "var(--shadow-sm)", position: "sticky", top: 84 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
             <span style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-neutral-500)" }}>Past results</span>
             <span style={{ fontSize: 10, color: "var(--color-neutral-600)" }}>Last {pastResults?.length ?? 0}</span>

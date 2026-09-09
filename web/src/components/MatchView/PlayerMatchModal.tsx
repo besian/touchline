@@ -14,7 +14,7 @@ export function PlayerMatchModal({
   onViewProfile: () => void;
 }) {
   return (
-    <div className="dialog-backdrop" style={{ zIndex: 200 }} onClick={onClose}>
+    <div className="dialog-backdrop" style={{ zIndex: 200, background: "rgba(8,9,14,0.72)" }} onClick={onClose}>
       <div className="dialog tl-fade-in" onClick={(e) => e.stopPropagation()}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>

@@ -23,7 +23,19 @@ function TeamTable({
   return (
     <div style={{ flex: "1 1 320px", minWidth: 0, borderRadius: "var(--radius-md)", background: "var(--color-surface)", boxShadow: "var(--shadow-sm)", overflow: "hidden" }}>
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.6fr) repeat(7,32px)", gap: 6, padding: "10px 12px", borderBottom: "1px solid var(--color-divider)" }}>
-        <span style={{ fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--color-neutral-500)" }}>{title}</span>
+        <span
+          style={{
+            fontSize: 11,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: "var(--color-neutral-500)",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {title}
+        </span>
         {COLS.map((c) => (
           <span key={c.key} style={{ fontSize: 10, color: "var(--color-neutral-600)", textAlign: "right" }}>
             {c.label}

@@ -1,4 +1,4 @@
-import { ArrowLeft } from "@phosphor-icons/react";
+import { ArrowLeft, User } from "@phosphor-icons/react";
 import { api } from "../api";
 import { usePolling } from "../hooks/usePolling";
 import { TeamCrest } from "./TeamCrest";
@@ -42,16 +42,35 @@ export function PlayerView({
               marginBottom: "var(--space-6)",
             }}
           >
-            <img
-              src={profile.bio.photo}
-              alt=""
-              width={84}
-              height={84}
-              style={{ borderRadius: "50%", background: "var(--color-neutral-900)", flex: "none", objectFit: "cover" }}
-              onError={(e) => {
-                (e.currentTarget as HTMLImageElement).style.visibility = "hidden";
+            <div
+              style={{
+                position: "relative",
+                width: 84,
+                height: 84,
+                flex: "none",
+                borderRadius: "50%",
+                background: "var(--color-neutral-900)",
+                display: "grid",
+                placeItems: "center",
               }}
-            />
+            >
+              <User size={40} color="var(--color-neutral-600)" weight="fill" />
+              {profile.bio.photo && (
+                <img
+                  src={profile.bio.photo}
+                  alt=""
+                  width={84}
+                  height={84}
+                  style={{ position: "absolute", inset: 0, borderRadius: "50%", objectFit: "cover" }}
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display = "none";
+                  }}
+                  onLoad={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display = "block";
+                  }}
+                />
+              )}
+            </div>
             <div style={{ minWidth: 0 }}>
               <h1 style={{ fontSize: 32, margin: "0 0 6px" }}>{profile.bio.name}</h1>
               <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: 13, color: "var(--color-neutral-400)" }}>
@@ -89,7 +108,7 @@ export function PlayerView({
                   <div style={{ flex: 1 }} />
                   <span style={{ fontSize: 12, color: "var(--color-neutral-500)" }}>{s.position}</span>
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(80px,1fr))", gap: 12, textAlign: "center" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, textAlign: "center" }}>
                   {[
                     ["Apps", s.appearances],
                     ["Mins", s.minutes],
@@ -98,9 +117,6 @@ export function PlayerView({
                     ["Shots", s.shots],
                     ["On target", s.shotsOnTarget],
                     ["Pass %", s.passAccuracy != null ? `${s.passAccuracy}%` : "—"],
-                    ["Fouls", s.fouls],
-                    ["Yellow", s.yellowCards],
-                    ["Red", s.redCards],
                     ["Rating", s.rating?.toFixed(1) ?? "—"],
                   ].map(([label, value]) => (
                     <div key={label as string}>
@@ -111,6 +127,13 @@ export function PlayerView({
                     </div>
                   ))}
                 </div>
+                {(s.fouls > 0 || s.yellowCards > 0 || s.redCards > 0) && (
+                  <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--color-divider)", display: "flex", gap: 14, fontSize: 12, color: "var(--color-neutral-400)" }}>
+                    {s.fouls > 0 && <span>{s.fouls} foul{s.fouls > 1 ? "s" : ""}</span>}
+                    {s.yellowCards > 0 && <span>{s.yellowCards} yellow card{s.yellowCards > 1 ? "s" : ""}</span>}
+                    {s.redCards > 0 && <span>{s.redCards} red card</span>}
+                  </div>
+                )}
               </div>
             ))}
           </div>

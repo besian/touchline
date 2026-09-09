@@ -50,17 +50,7 @@ export function PlayerSearch({ onSelect }: { onSelect: (playerId: number) => voi
 
   return (
     <div ref={containerRef} style={{ position: "relative", width: 220 }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          padding: "6px 10px",
-          borderRadius: "var(--radius-md)",
-          border: "1px solid var(--color-divider)",
-          background: "var(--color-surface)",
-        }}
-      >
+      <div className="tl-search-box" style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 10px" }}>
         <MagnifyingGlass size={14} color="var(--color-neutral-500)" />
         <input
           value={query}

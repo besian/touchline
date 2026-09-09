@@ -14,17 +14,19 @@ export function TeamCrest({ id, logo, name, size = 22 }: { id: number; logo: str
         overflow: "hidden",
       }}
     >
-      <img
-        src={logo}
-        alt=""
-        width={size}
-        height={size}
-        style={{ objectFit: "contain", padding: size > 24 ? 3 : 1 }}
-        onError={(e) => {
-          (e.currentTarget as HTMLImageElement).style.display = "none";
-        }}
-        title={name}
-      />
+      {logo && (
+        <img
+          src={logo}
+          alt=""
+          width={size}
+          height={size}
+          style={{ objectFit: "contain", padding: size > 24 ? 3 : 1 }}
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).style.display = "none";
+          }}
+          title={name}
+        />
+      )}
     </span>
   );
 }
