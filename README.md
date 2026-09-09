@@ -16,8 +16,8 @@ Everything lives in `web/` as a single deployable project:
 - `web/api-src/` — Express + TypeScript backend that proxies [API-Football](https://www.api-football.com/)
   (fixtures, lineups, live events, match statistics, odds, and player season statistics) and holds the API key
   server-side.
-- `web/api/[...path].ts` — the Vercel serverless function entry point; delegates to `api-src/app.ts` directly
-  (Vercel's Node runtime compiles the TypeScript itself — no separate backend build step).
+- `web/api/index.ts` — the one Vercel serverless function; `web/vercel.json` rewrites every `/api/*` request to
+  it (with the original URL intact), and it delegates to `api-src/app.ts` for Express to route from there.
 - `project/`, `chats/` — the original Claude Design handoff bundle (prototype HTML/CSS/JS, not used at runtime).
 
 ## Running it locally
