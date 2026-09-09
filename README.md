@@ -10,66 +10,50 @@ Nocturne design system's tokens and component styles.
 
 ## Structure
 
-- `web/` — React + Vite + TypeScript frontend.
-- `server/` — Express + TypeScript backend that proxies [API-Football](https://www.api-football.com/) (fixtures,
-  lineups, live events, match statistics, odds, and player season statistics) and holds the API key server-side.
+Everything lives in `web/` as a single deployable project:
+
+- `web/src/` — React + Vite + TypeScript frontend.
+- `web/api-src/` — Express + TypeScript backend that proxies [API-Football](https://www.api-football.com/)
+  (fixtures, lineups, live events, match statistics, odds, and player season statistics) and holds the API key
+  server-side. Compiles to `web/api-dist/`.
+- `web/api/[...path].ts` — the Vercel serverless function entry point; delegates to the built backend above.
 - `project/`, `chats/` — the original Claude Design handoff bundle (prototype HTML/CSS/JS, not used at runtime).
 
-## Running it
-
-### 1. Backend
-
-```
-cd server
-cp .env.example .env   # fill in API_FOOTBALL_KEY (and API_FOOTBALL_MODE if you're on RapidAPI)
-npm install
-npm run dev
-```
-
-Runs on `http://localhost:8787`. `API_FOOTBALL_LEAGUE_ID` defaults to `2` (UEFA Champions League);
-`API_FOOTBALL_SEASON` defaults to the current year — set it explicitly if your plan needs the season the
-competition actually started in (e.g. `2026` for the 2026/2027 season).
-
-### 2. Frontend
+## Running it locally
 
 ```
 cd web
-cp .env.example .env   # only needed if the backend isn't on localhost:8787
 npm install
-npm run dev
+cp .env.example .env   # fill in API_FOOTBALL_KEY (and API_FOOTBALL_MODE if you're on RapidAPI)
 ```
 
-Runs on `http://localhost:5173`.
+Then, in two terminals:
+
+```
+npm run dev:api    # backend on http://localhost:8787
+npm run dev        # frontend on http://localhost:5173
+```
+
+`API_FOOTBALL_LEAGUE_ID` defaults to `2` (UEFA Champions League); `API_FOOTBALL_SEASON` defaults to the current
+year — set it explicitly if your plan needs the season the competition actually started in (e.g. `2026` for the
+2026/2027 season).
 
 ## Deploying to Vercel
 
-This is two separate Vercel projects sharing the one repo — one per subfolder, each with its own URL.
+One project, one import — pick `web` as the directory when Vercel asks (it auto-detects Vite).
 
-### 1. Backend (`server/`)
-
-Create a Vercel project with **Root Directory** set to `server`. It ships as a serverless function
-(`api/[...path].ts` behind `vercel.json`'s `buildCommand: npm run build`, which compiles `src/` to `dist/` first) —
-no framework preset needed ("Other" is fine).
+`vercel.json`'s `buildCommand` (`npm run build:api && npm run build`) compiles the backend to `api-dist/` and
+then builds the frontend, so `web/api/[...path].ts` has something to import. No separate backend project or
+`CORS_ORIGIN` juggling needed — the API is served from the same domain as the site, at `/api/*`.
 
 Set these environment variables on the project:
 
 - `API_FOOTBALL_KEY` — your key
 - `API_FOOTBALL_MODE` — `direct` or `rapidapi`, matching where the key is from
 - `API_FOOTBALL_LEAGUE_ID`, `API_FOOTBALL_SEASON` — optional, same defaults as local
-- `CORS_ORIGIN` — the frontend's Vercel URL (set this after step 2, then redeploy)
+- `VITE_API_BASE_URL` — set to `/api` (same-origin, since it's all one deployment now)
 
-Deploy it (`vercel --cwd server` with the CLI, or import the repo in the dashboard and point Root Directory at
-`server`). Note the resulting URL, e.g. `https://touchline-api.vercel.app`.
-
-### 2. Frontend (`web/`)
-
-Create a second Vercel project with **Root Directory** set to `web` (Vercel auto-detects the Vite framework).
-
-Set `VITE_API_BASE_URL` to the backend URL from step 1 plus `/api`, e.g.
-`https://touchline-api.vercel.app/api`.
-
-Deploy it (`vercel --cwd web`, or via the dashboard). Then go back to the backend project's `CORS_ORIGIN` and
-set it to this frontend URL, and redeploy the backend so the browser is actually allowed to call it.
+Deploy, and that's it — no second project, no wiring one deployment's URL into another's.
 
 ## Notes on the data
 
