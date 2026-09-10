@@ -100,6 +100,7 @@ export interface PlayerCompetitionStats {
   teamLogo: string;
   leagueName: string;
   leagueLogo: string;
+  number: number | null;
   appearances: number;
   minutes: number;
   position: string;
