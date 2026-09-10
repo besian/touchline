@@ -10,14 +10,15 @@ export function Header({
   onSelectPlayer,
 }: {
   view: View;
-  onNavigate: (v: "fixtures" | "stats") => void;
+  onNavigate: (v: "fixtures" | "stats" | "referees") => void;
   roundLabel: string;
   onSelectPlayer: (playerId: number) => void;
 }) {
   const { slip, toggleSlip } = useBetSlip();
-  const tabs: { key: "fixtures" | "stats"; label: string }[] = [
+  const tabs: { key: "fixtures" | "stats" | "referees"; label: string }[] = [
     { key: "fixtures", label: "Matches" },
     { key: "stats", label: "Statistics" },
+    { key: "referees", label: "Referees" },
   ];
 
   return (
@@ -67,7 +68,10 @@ export function Header({
 
       <div style={{ display: "flex", gap: "var(--space-4)" }}>
         {tabs.map((t) => {
-          const active = view === t.key || (t.key === "fixtures" && view === "match");
+          const active =
+            view === t.key ||
+            (t.key === "fixtures" && view === "match") ||
+            (t.key === "referees" && view === "referee");
           return (
             <button
               key={t.key}

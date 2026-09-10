@@ -5,20 +5,23 @@ import { MatchView } from "./components/MatchView/MatchView";
 import { StatsView } from "./components/StatsView";
 import { PlayerView } from "./components/PlayerView";
 import { TeamView } from "./components/TeamView";
+import { RefereesView } from "./components/RefereesView";
+import { RefereeView } from "./components/RefereeView";
 import { BetSlip } from "./components/BetSlip";
 import { Toast } from "./components/Toast";
 import { BetSlipProvider } from "./state/BetSlipContext";
 import { useCurrentRound } from "./hooks/useCurrentRound";
 
-export type View = "fixtures" | "match" | "stats" | "player" | "team";
+export type View = "fixtures" | "match" | "stats" | "player" | "team" | "referees" | "referee";
 
-const OVERLAY_VIEWS: View[] = ["player", "team", "match"];
+const OVERLAY_VIEWS: View[] = ["player", "team", "match", "referee"];
 
 function AppShell() {
   const [view, setView] = useState<View>("fixtures");
   const [matchId, setMatchId] = useState<number | null>(null);
   const [playerId, setPlayerId] = useState<number | null>(null);
   const [teamId, setTeamId] = useState<number | null>(null);
+  const [refereeName, setRefereeName] = useState<string | null>(null);
   const [returnView, setReturnView] = useState<View>("fixtures");
   const round = useCurrentRound();
 
@@ -40,6 +43,12 @@ function AppShell() {
     setView("team");
   };
 
+  const openReferee = (name: string) => {
+    setReturnView((v) => (OVERLAY_VIEWS.includes(view) ? v : view));
+    setRefereeName(name);
+    setView("referee");
+  };
+
   return (
     <div className="tl-app">
       <Header
@@ -53,7 +62,13 @@ function AppShell() {
 
       {view === "fixtures" && <FixturesView round={round} onOpen={openMatch} onSelectTeam={openTeam} />}
       {view === "match" && matchId != null && (
-        <MatchView fixtureId={matchId} onBack={() => setView(returnView)} onSelectPlayer={openPlayer} onSelectTeam={openTeam} />
+        <MatchView
+          fixtureId={matchId}
+          onBack={() => setView(returnView)}
+          onSelectPlayer={openPlayer}
+          onSelectTeam={openTeam}
+          onSelectReferee={openReferee}
+        />
       )}
       {view === "stats" && <StatsView onSelectPlayer={openPlayer} onSelectTeam={openTeam} onOpenMatch={openMatch} />}
       {view === "player" && playerId != null && (
@@ -67,6 +82,10 @@ function AppShell() {
           onSelectTeam={openTeam}
           onOpenMatch={openMatch}
         />
+      )}
+      {view === "referees" && <RefereesView onSelectReferee={openReferee} />}
+      {view === "referee" && refereeName != null && (
+        <RefereeView name={refereeName} onBack={() => setView(returnView)} onOpenMatch={openMatch} />
       )}
 
       <BetSlip />

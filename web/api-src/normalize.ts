@@ -27,6 +27,7 @@ export function normalizeFixture(raw: any): Fixture {
     away: { id: raw.teams.away.id, name: raw.teams.away.name, logo: raw.teams.away.logo },
     goalsHome: raw.goals.home,
     goalsAway: raw.goals.away,
+    referee: raw.fixture.referee ? String(raw.fixture.referee).trim() : null,
   };
 }
 
@@ -82,6 +83,21 @@ export function normalizeStatistics(raw: any[]): StatPair[] {
     home: toNum(homeStats[k]),
     away: toNum(awayStats[k]),
   }));
+}
+
+/** Card and penalty counts for a fixture's events, used for referee-stat aggregation. */
+export function summarizeDiscipline(raw: any[]): { yellowCards: number; redCards: number; penalties: number } {
+  let yellowCards = 0;
+  let redCards = 0;
+  let penalties = 0;
+  for (const e of raw) {
+    if (e.type === "Card") {
+      if (e.detail === "Yellow Card") yellowCards++;
+      else if (e.detail === "Red Card" || e.detail === "Second Yellow card") redCards++;
+    }
+    if (e.type === "Goal" && (e.detail === "Penalty" || e.detail === "Missed Penalty")) penalties++;
+  }
+  return { yellowCards, redCards, penalties };
 }
 
 export function summarizeScorers(raw: any[], homeTeamId: number): string {

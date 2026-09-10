@@ -18,11 +18,13 @@ export function MatchView({
   onBack,
   onSelectPlayer,
   onSelectTeam,
+  onSelectReferee,
 }: {
   fixtureId: number;
   onBack: () => void;
   onSelectPlayer: (playerId: number) => void;
   onSelectTeam: (teamId: number) => void;
+  onSelectReferee: (name: string) => void;
 }) {
   const [side, setSide] = useState<"both" | "home" | "away">("both");
   const [modalPlayerId, setModalPlayerId] = useState<number | null>(null);
@@ -209,6 +211,16 @@ export function MatchView({
               </span>
             )}
             <div style={{ flex: 1 }} />
+            {fixture.referee && (
+              <span
+                className="tl-player-clickable"
+                onClick={() => onSelectReferee(fixture.referee!)}
+                style={{ fontSize: 11, color: "var(--color-neutral-500)" }}
+                title="View referee stats"
+              >
+                Referee: <span className="tl-player-name">{fixture.referee}</span>
+              </span>
+            )}
             <span style={{ fontSize: 11, color: "var(--color-neutral-600)" }}>Hover a player for form, click for full stats</span>
           </div>
 

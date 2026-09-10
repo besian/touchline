@@ -19,6 +19,7 @@ export interface Fixture {
   away: TeamRef;
   goalsHome: number | null;
   goalsAway: number | null;
+  referee: string | null;
 }
 
 export interface MatchEvent {
@@ -161,3 +162,33 @@ export interface TeamStats {
 
 export const LIVE_STATUSES = new Set(["1H", "HT", "2H", "ET", "P", "BT"]);
 export const FINISHED_STATUSES = new Set(["FT", "AET", "PEN"]);
+
+export interface RefereeMatchStats {
+  fixtureId: number;
+  round: string;
+  competitionName?: string;
+  kickoff: string;
+  status: string;
+  home: TeamRef;
+  away: TeamRef;
+  goalsHome: number | null;
+  goalsAway: number | null;
+  yellowCards: number;
+  redCards: number;
+  penalties: number;
+}
+
+export interface RefereeSummary {
+  name: string;
+  matches: number;
+  yellowCards: number;
+  redCards: number;
+  penalties: number;
+  avgYellowPerMatch: number;
+  avgRedPerMatch: number;
+  avgCardsPerMatch: number;
+}
+
+export interface RefereeProfile extends RefereeSummary {
+  matchHistory: RefereeMatchStats[];
+}

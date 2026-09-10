@@ -30,11 +30,14 @@ import {
   normalizeTeamProfile,
   normalizeTeamStats,
   predictLineup,
+  summarizeDiscipline,
   summarizeScorers,
 } from "./normalize.js";
 import { cached } from "./cache.js";
 
 export const router = Router();
+
+const FINISHED_STATUSES = new Set(["FT", "AET", "PEN"]);
 
 function handleError(res: import("express").Response, err: unknown) {
   if (err instanceof ApiFootballError) {
@@ -249,6 +252,112 @@ router.get("/teams/:id", async (req, res) => {
       return;
     }
     res.json(normalizeTeamProfile(raw[0]));
+  } catch (err) {
+    handleError(res, err);
+  }
+});
+
+// API-Football has no dedicated referee-stats endpoint - these derive real
+// per-referee card/penalty counts from recent fixtures' events, the same
+// data source /fixtures/past uses for scorers.
+router.get("/referees", async (req, res) => {
+  try {
+    const last = req.query.last ? Number(req.query.last) : 40;
+    const summaries = await cached(`referees:${last}`, 5 * 60_000, async () => {
+      const raw = await getFixtures({ last });
+      const finished = raw.filter(
+        (r: any) => FINISHED_STATUSES.has(r.fixture.status.short) && r.fixture.referee
+      );
+      const byReferee = new Map<string, { yellowCards: number; redCards: number; penalties: number; matches: number }>();
+      await Promise.all(
+        finished.map(async (r: any) => {
+          const name = String(r.fixture.referee).trim();
+          const events = await getFixtureEvents(r.fixture.id);
+          const d = summarizeDiscipline(events);
+          const entry = byReferee.get(name) ?? { yellowCards: 0, redCards: 0, penalties: 0, matches: 0 };
+          entry.yellowCards += d.yellowCards;
+          entry.redCards += d.redCards;
+          entry.penalties += d.penalties;
+          entry.matches += 1;
+          byReferee.set(name, entry);
+        })
+      );
+      return Array.from(byReferee.entries())
+        .map(([name, s]) => ({
+          name,
+          matches: s.matches,
+          yellowCards: s.yellowCards,
+          redCards: s.redCards,
+          penalties: s.penalties,
+          avgYellowPerMatch: s.matches ? s.yellowCards / s.matches : 0,
+          avgRedPerMatch: s.matches ? s.redCards / s.matches : 0,
+          avgCardsPerMatch: s.matches ? (s.yellowCards + s.redCards) / s.matches : 0,
+        }))
+        .sort((a, b) => b.matches - a.matches);
+    });
+    res.json(summaries);
+  } catch (err) {
+    handleError(res, err);
+  }
+});
+
+router.get("/referees/:name", async (req, res) => {
+  try {
+    const targetName = decodeURIComponent(req.params.name);
+    const last = req.query.last ? Number(req.query.last) : 40;
+    const result = await cached(`referee-detail:${targetName}:${last}`, 5 * 60_000, async () => {
+      const raw = await getFixtures({ last });
+      const finished = raw.filter(
+        (r: any) =>
+          FINISHED_STATUSES.has(r.fixture.status.short) &&
+          r.fixture.referee &&
+          String(r.fixture.referee).trim() === targetName
+      );
+      const matchHistory = await Promise.all(
+        finished.map(async (r: any) => {
+          const events = await getFixtureEvents(r.fixture.id);
+          const d = summarizeDiscipline(events);
+          const f = normalizeFixture(r);
+          return {
+            fixtureId: f.id,
+            round: f.round,
+            competitionName: f.competitionName,
+            kickoff: f.kickoff,
+            status: f.status,
+            home: f.home,
+            away: f.away,
+            goalsHome: f.goalsHome,
+            goalsAway: f.goalsAway,
+            ...d,
+          };
+        })
+      );
+      const totals = matchHistory.reduce(
+        (acc, m) => ({
+          yellowCards: acc.yellowCards + m.yellowCards,
+          redCards: acc.redCards + m.redCards,
+          penalties: acc.penalties + m.penalties,
+        }),
+        { yellowCards: 0, redCards: 0, penalties: 0 }
+      );
+      const matches = matchHistory.length;
+      return {
+        name: targetName,
+        matches,
+        yellowCards: totals.yellowCards,
+        redCards: totals.redCards,
+        penalties: totals.penalties,
+        avgYellowPerMatch: matches ? totals.yellowCards / matches : 0,
+        avgRedPerMatch: matches ? totals.redCards / matches : 0,
+        avgCardsPerMatch: matches ? (totals.yellowCards + totals.redCards) / matches : 0,
+        matchHistory: matchHistory.sort((a, b) => new Date(b.kickoff).getTime() - new Date(a.kickoff).getTime()),
+      };
+    });
+    if (result.matches === 0) {
+      res.status(404).json({ error: "Referee not found" });
+      return;
+    }
+    res.json(result);
   } catch (err) {
     handleError(res, err);
   }

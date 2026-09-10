@@ -8,6 +8,8 @@ import type {
   PlayerProfile,
   PlayerSeasonStats,
   PredictedLineup,
+  RefereeProfile,
+  RefereeSummary,
   StatPair,
   TeamProfile,
   TeamStats,
@@ -44,4 +46,7 @@ export const api = {
   teamStatistics: (teamId: number) => get<TeamStats>(`/teams/${teamId}/statistics`),
   teamFixtures: (teamId: number, last = 10) => get<Fixture[]>(`/teams/${teamId}/fixtures?last=${last}`),
   predictedLineup: (teamId: number) => get<PredictedLineup>(`/teams/${teamId}/predicted-lineup`),
+  referees: (last = 40) => get<RefereeSummary[]>(`/referees?last=${last}`),
+  refereeProfile: (name: string, last = 40) =>
+    get<RefereeProfile>(`/referees/${encodeURIComponent(name)}?last=${last}`),
 };

@@ -2,8 +2,9 @@
 
 A Champions League lineups & odds web app: a live fixtures list with ticking 1X2 prices, a match hub with an
 animated top-down pitch (real starting XIs sliding into their real formations), a live event feed, match stats,
-win-probability bar, betting markets, a slide-in bet slip with payout math, and a sortable player-statistics
-leaderboard.
+win-probability bar, betting markets, a slide-in bet slip with payout math, a sortable player-statistics
+leaderboard, team and player profile pages, and a referees page with per-referee discipline stats (cards,
+penalties, match history) derived from recent fixtures.
 
 Implemented from a Claude Design handoff (see `chats/` and `project/` for the original design source) using the
 Nocturne design system's tokens and component styles.
@@ -64,3 +65,7 @@ Deploy, and that's it — no second project, no wiring one deployment's URL into
   stay within API-Football's rate limits — expect a request burst on first load of a match page.
 - The bet slip's stake/payout math and "place bet" action are local UI simulation only — no real wagering, payment,
   or account system is wired up.
+- API-Football has no dedicated referee-stats endpoint, so referee cards/penalties/match history are aggregated
+  server-side from each referee's recent fixtures and match events — the same event data the match hub uses.
+  "Predicted" lineups (shown before a match's official lineup is published) are likewise a best guess from a team's
+  recent starting XIs, not sourced from news or injury reports.
