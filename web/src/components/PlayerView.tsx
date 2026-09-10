@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { ArrowLeft, Barbell, CalendarBlank, Globe, Ruler, User } from "@phosphor-icons/react";
 import { api } from "../api";
 import { usePolling } from "../hooks/usePolling";
 import { TeamCrest } from "./TeamCrest";
 import type { PlayerCompetitionStats } from "../types";
+
+const SEASON_OPTIONS_COUNT = 6;
 
 function ratingColor(r: number | null): string {
   if (r == null) return "var(--color-neutral-500)";
@@ -40,7 +43,14 @@ export function PlayerView({
   onBack: () => void;
   onSelectTeam: (teamId: number) => void;
 }) {
-  const { data: profile, error, loading } = usePolling(() => api.playerProfile(playerId), 5 * 60_000, [playerId]);
+  const [season, setSeason] = useState<number | null>(null);
+  const [league, setLeague] = useState<string>("all");
+
+  const { data: profile, error, loading } = usePolling(
+    () => api.playerProfile(playerId, season ?? undefined),
+    5 * 60_000,
+    [playerId, season]
+  );
 
   const stats = profile?.stats ?? [];
   const sortedStats = [...stats].sort((a, b) => {
@@ -50,7 +60,13 @@ export function PlayerView({
   });
   const primaryNumber = sortedStats.find((s) => s.number != null)?.number ?? null;
 
-  const totals = stats.reduce(
+  const currentSeason = season ?? stats.find((s) => s.season != null)?.season ?? new Date().getFullYear();
+  const seasonOptions = Array.from({ length: SEASON_OPTIONS_COUNT }, (_, i) => currentSeason - i);
+
+  const leagueOptions = [...new Set(sortedStats.map((s) => s.leagueName).filter(Boolean))];
+  const visibleStats = league === "all" ? sortedStats : sortedStats.filter((s) => s.leagueName === league);
+
+  const totals = (league === "all" ? stats : stats.filter((s) => s.leagueName === league)).reduce(
     (acc, s) => ({
       goals: acc.goals + s.goals,
       assists: acc.assists + s.assists,
@@ -180,7 +196,7 @@ export function PlayerView({
               }}
             >
               <span style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-neutral-500)", alignSelf: "center", marginRight: "auto" }}>
-                All competitions
+                {league === "all" ? "All competitions" : league} · {currentSeason}/{String(currentSeason + 1).slice(-2)}
               </span>
               {[
                 ["Apps", totals.apps],
@@ -198,10 +214,43 @@ export function PlayerView({
             </div>
           )}
 
-          <h4 style={{ margin: "0 0 10px" }}>By competition</h4>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
+            <h4 style={{ margin: 0, marginRight: "auto" }}>By competition</h4>
+            <select
+              className="input"
+              value={league}
+              onChange={(e) => setLeague(e.target.value)}
+              style={{ width: "auto", minHeight: 32, padding: "4px 8px", fontSize: 12 }}
+            >
+              <option value="all">All competitions</option>
+              {leagueOptions.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+            <select
+              className="input"
+              value={currentSeason}
+              onChange={(e) => {
+                setSeason(Number(e.target.value));
+                setLeague("all");
+              }}
+              style={{ width: "auto", minHeight: 32, padding: "4px 8px", fontSize: 12 }}
+            >
+              {seasonOptions.map((y) => (
+                <option key={y} value={y}>
+                  {y}/{String(y + 1).slice(-2)}
+                </option>
+              ))}
+            </select>
+          </div>
           {stats.length === 0 && <p className="text-muted">No statistics recorded for this season.</p>}
+          {stats.length > 0 && visibleStats.length === 0 && (
+            <p className="text-muted">No statistics for this competition in {currentSeason}/{String(currentSeason + 1).slice(-2)}.</p>
+          )}
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {sortedStats.map((s: PlayerCompetitionStats, i) => (
+            {visibleStats.map((s: PlayerCompetitionStats, i) => (
               <div
                 key={i}
                 style={{

@@ -101,9 +101,10 @@ export function searchPlayers(query: string) {
   );
 }
 
-export function getPlayerProfile(playerId: number) {
-  return cached(`player-profile:${playerId}`, 5 * 60_000, () =>
-    request<unknown[]>("/players", { id: playerId, season: config.season })
+export function getPlayerProfile(playerId: number, season?: number) {
+  const resolvedSeason = season ?? config.season;
+  return cached(`player-profile:${playerId}:${resolvedSeason}`, 5 * 60_000, () =>
+    request<unknown[]>("/players", { id: playerId, season: resolvedSeason })
   );
 }
 

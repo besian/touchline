@@ -183,7 +183,8 @@ router.get("/players/search", async (req, res) => {
 
 router.get("/players/:id", async (req, res) => {
   try {
-    const raw = await getPlayerProfile(Number(req.params.id));
+    const season = req.query.season ? Number(req.query.season) : undefined;
+    const raw = await getPlayerProfile(Number(req.params.id), season);
     if (raw.length === 0) {
       res.status(404).json({ error: "Player not found" });
       return;

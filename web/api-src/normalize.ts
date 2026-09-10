@@ -196,6 +196,7 @@ export function normalizePlayerProfile(raw: any): PlayerProfile {
       teamLogo: stat.team?.logo,
       leagueName: stat.league?.name,
       leagueLogo: stat.league?.logo,
+      season: stat.league?.season ?? null,
       number: stat.games?.number ?? null,
       appearances: stat.games?.appearences ?? 0,
       minutes: stat.games?.minutes ?? 0,

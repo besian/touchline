@@ -41,7 +41,8 @@ export const api = {
   players: (pages = 4) => get<PlayerSeasonStats[]>(`/players?pages=${pages}`),
   teamPlayers: (teamId: number) => get<PlayerSeasonStats[]>(`/teams/${teamId}/players`),
   searchPlayers: (q: string) => get<PlayerSeasonStats[]>(`/players/search?q=${encodeURIComponent(q)}`),
-  playerProfile: (playerId: number) => get<PlayerProfile>(`/players/${playerId}`),
+  playerProfile: (playerId: number, season?: number) =>
+    get<PlayerProfile>(`/players/${playerId}${season ? `?season=${season}` : ""}`),
   teamProfile: (teamId: number) => get<TeamProfile>(`/teams/${teamId}`),
   teamStatistics: (teamId: number) => get<TeamStats>(`/teams/${teamId}/statistics`),
   teamFixtures: (teamId: number, last = 10) => get<Fixture[]>(`/teams/${teamId}/fixtures?last=${last}`),
