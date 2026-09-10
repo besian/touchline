@@ -28,6 +28,8 @@ export interface MatchEvent {
   detail: string;
   text: string;
   side: "home" | "away" | null;
+  subOutId?: number;
+  subInId?: number;
 }
 
 export interface StatPair {

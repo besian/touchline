@@ -1,19 +1,27 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
-import { X } from "@phosphor-icons/react";
+import { ArrowsLeftRight, X } from "@phosphor-icons/react";
 import { TeamCrest } from "../TeamCrest";
 import type { PlayerMatchStats } from "../../types";
+
+export interface SubstitutionLink {
+  player: PlayerMatchStats;
+  wasSubbedOn: boolean;
+  onView: () => void;
+}
 
 export function PlayerMatchModal({
   player,
   teamName,
   onClose,
   onViewProfile,
+  substitute,
 }: {
   player: PlayerMatchStats;
   teamName: string;
   onClose: () => void;
   onViewProfile: () => void;
+  substitute?: SubstitutionLink;
 }) {
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -72,6 +80,16 @@ export function PlayerMatchModal({
               {player.yellowCards > 0 && <span>{player.yellowCards} yellow card{player.yellowCards > 1 ? "s" : ""}</span>}
               {player.redCards > 0 && <span>{player.redCards} red card</span>}
             </div>
+          )}
+          {substitute && (
+            <button
+              className="btn btn-secondary btn-block"
+              onClick={substitute.onView}
+              style={{ marginTop: 14, justifyContent: "flex-start", gap: 8 }}
+            >
+              <ArrowsLeftRight size={14} />
+              {substitute.wasSubbedOn ? `Came on for ${substitute.player.name} — see their stats` : `Replaced by ${substitute.player.name} — see their stats`}
+            </button>
           )}
         </div>
 

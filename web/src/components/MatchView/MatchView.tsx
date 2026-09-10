@@ -8,7 +8,7 @@ import { Markets } from "./Markets";
 import { LiveFeed } from "./LiveFeed";
 import { MatchStats } from "./MatchStats";
 import { MatchPlayerStats } from "./MatchPlayerStats";
-import { PlayerMatchModal } from "./PlayerMatchModal";
+import { PlayerMatchModal, type SubstitutionLink } from "./PlayerMatchModal";
 import { findMarket, findPrice, impliedProbabilities } from "../../lib/odds";
 import { scoreText, statusInfo } from "../../lib/format";
 import type { PlayerMatchStats } from "../../types";
@@ -58,6 +58,17 @@ export function MatchView({
     for (const p of matchPlayerStats ?? []) map.set(p.id, p);
     return map;
   }, [matchPlayerStats]);
+
+  const subInfo = useMemo(() => {
+    const map = new Map<number, { partnerId: number; wasSubbedOn: boolean }>();
+    for (const e of events ?? []) {
+      if (e.type === "sub" && e.subOutId != null && e.subInId != null) {
+        map.set(e.subOutId, { partnerId: e.subInId, wasSubbedOn: false });
+        map.set(e.subInId, { partnerId: e.subOutId, wasSubbedOn: true });
+      }
+    }
+    return map;
+  }, [events]);
 
   const homeLineup = lineups?.find((l) => l.teamId === fixture?.home.id);
   const awayLineup = lineups?.find((l) => l.teamId === fixture?.away.id);
@@ -246,6 +257,11 @@ export function MatchView({
           const p = playerStats.get(modalPlayerId);
           if (!p) return null;
           const teamName = p.teamId === fixture.home.id ? fixture.home.name : fixture.away.name;
+          const sub = subInfo.get(modalPlayerId);
+          const partner = sub ? playerStats.get(sub.partnerId) : undefined;
+          const substitute: SubstitutionLink | undefined = partner
+            ? { player: partner, wasSubbedOn: sub!.wasSubbedOn, onView: () => setModalPlayerId(sub!.partnerId) }
+            : undefined;
           return (
             <PlayerMatchModal
               player={p}
@@ -255,6 +271,7 @@ export function MatchView({
                 setModalPlayerId(null);
                 onSelectPlayer(modalPlayerId);
               }}
+              substitute={substitute}
             />
           );
         })()}

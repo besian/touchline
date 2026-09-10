@@ -53,6 +53,8 @@ export function normalizeEvents(raw: any[], homeTeamId: number): MatchEvent[] {
       detail,
       text,
       side: e.team ? (e.team.id === homeTeamId ? "home" : "away") : null,
+      subOutId: type === "sub" ? e.player?.id : undefined,
+      subInId: type === "sub" ? e.assist?.id : undefined,
     };
   });
 }
