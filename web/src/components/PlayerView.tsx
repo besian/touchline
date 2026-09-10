@@ -3,6 +3,7 @@ import { ArrowLeft, Barbell, CalendarBlank, Globe, Ruler, User } from "@phosphor
 import { api } from "../api";
 import { usePolling } from "../hooks/usePolling";
 import { TeamCrest } from "./TeamCrest";
+import { Dropdown } from "./Dropdown";
 import type { PlayerCompetitionStats } from "../types";
 
 const SEASON_OPTIONS_COUNT = 6;
@@ -216,34 +217,24 @@ export function PlayerView({
 
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
             <h4 style={{ margin: 0, marginRight: "auto" }}>By competition</h4>
-            <select
-              className="input"
+            <Dropdown
+              ariaLabel="Filter by competition"
               value={league}
-              onChange={(e) => setLeague(e.target.value)}
-              style={{ width: "auto", minHeight: 32, padding: "4px 8px", fontSize: 12 }}
-            >
-              <option value="all">All competitions</option>
-              {leagueOptions.map((name) => (
-                <option key={name} value={name}>
-                  {name}
-                </option>
-              ))}
-            </select>
-            <select
-              className="input"
+              onChange={setLeague}
+              options={[
+                { value: "all", label: "All competitions" },
+                ...leagueOptions.map((name) => ({ value: name, label: name })),
+              ]}
+            />
+            <Dropdown
+              ariaLabel="Select season"
               value={currentSeason}
-              onChange={(e) => {
-                setSeason(Number(e.target.value));
+              onChange={(y) => {
+                setSeason(y);
                 setLeague("all");
               }}
-              style={{ width: "auto", minHeight: 32, padding: "4px 8px", fontSize: 12 }}
-            >
-              {seasonOptions.map((y) => (
-                <option key={y} value={y}>
-                  {y}/{String(y + 1).slice(-2)}
-                </option>
-              ))}
-            </select>
+              options={seasonOptions.map((y) => ({ value: y, label: `${y}/${String(y + 1).slice(-2)}` }))}
+            />
           </div>
           {stats.length === 0 && <p className="text-muted">No statistics recorded for this season.</p>}
           {stats.length > 0 && visibleStats.length === 0 && (
