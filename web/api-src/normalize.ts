@@ -219,6 +219,72 @@ export function normalizeFixturePlayerStats(raw: any[]): PlayerMatchStats[] {
   );
 }
 
+const POSITION_GROUP_NEED = (formation: string): Record<string, number> => {
+  const [d, m, f] = formation.split("-").map(Number);
+  return { G: 1, D: d || 4, M: m || 3, F: f || 3 };
+};
+
+/**
+ * Best-effort predicted XI for a team with no published lineup yet: the
+ * formation and starting players it's used most often across its last
+ * few fixtures. Not based on news/injury reports - we have no such feed.
+ */
+export function predictLineup(lineupsPerFixture: any[][], teamId: number): Lineup & { sampleSize: number } {
+  const formationCounts: Record<string, number> = {};
+  const playerAgg: Record<
+    number,
+    { id: number; name: string; appearances: number; numberCounts: Record<string, number>; posCounts: Record<string, number> }
+  > = {};
+  let sampleSize = 0;
+
+  for (const lineups of lineupsPerFixture) {
+    const teamLineup = lineups.find((l: any) => l.team?.id === teamId);
+    if (!teamLineup) continue;
+    sampleSize++;
+    if (teamLineup.formation) formationCounts[teamLineup.formation] = (formationCounts[teamLineup.formation] ?? 0) + 1;
+    for (const s of teamLineup.startXI ?? []) {
+      const p = s.player;
+      if (!playerAgg[p.id]) playerAgg[p.id] = { id: p.id, name: p.name, appearances: 0, numberCounts: {}, posCounts: {} };
+      const agg = playerAgg[p.id];
+      agg.appearances++;
+      agg.numberCounts[p.number] = (agg.numberCounts[p.number] ?? 0) + 1;
+      agg.posCounts[p.pos] = (agg.posCounts[p.pos] ?? 0) + 1;
+    }
+  }
+
+  const topEntry = (counts: Record<string, number>) => Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0];
+  const formation = topEntry(formationCounts) ?? "4-3-3";
+  const need = POSITION_GROUP_NEED(formation);
+
+  const candidates = Object.values(playerAgg)
+    .map((p) => ({ ...p, number: Number(topEntry(p.numberCounts)) || 0, pos: topEntry(p.posCounts) ?? "M" }))
+    .sort((a, b) => b.appearances - a.appearances);
+
+  const picked: typeof candidates = [];
+  const pickedIds = new Set<number>();
+  for (const group of ["G", "D", "M", "F"] as const) {
+    const inGroup = candidates.filter((p) => p.pos === group && !pickedIds.has(p.id)).slice(0, need[group]);
+    for (const p of inGroup) {
+      picked.push(p);
+      pickedIds.add(p.id);
+    }
+  }
+  for (const p of candidates) {
+    if (picked.length >= 11) break;
+    if (!pickedIds.has(p.id)) {
+      picked.push(p);
+      pickedIds.add(p.id);
+    }
+  }
+
+  return {
+    teamId,
+    formation,
+    sampleSize,
+    startXI: picked.slice(0, 11).map((p) => ({ id: p.id, name: p.name, number: p.number, position: p.pos })),
+  };
+}
+
 export function normalizeTeamProfile(raw: any): TeamProfile {
   const t = raw.team;
   const v = raw.venue;

@@ -29,6 +29,7 @@ import {
   normalizeStatistics,
   normalizeTeamProfile,
   normalizeTeamStats,
+  predictLineup,
   summarizeScorers,
 } from "./normalize.js";
 import { cached } from "./cache.js";
@@ -195,6 +196,27 @@ router.get("/teams/:id/players", async (req, res) => {
     const teamId = Number(req.params.id);
     const [p1, p2] = await Promise.all([getPlayersByTeam(teamId, 1), getPlayersByTeam(teamId, 2)]);
     res.json(normalizePlayerStats([...p1, ...p2]));
+  } catch (err) {
+    handleError(res, err);
+  }
+});
+
+// Best-effort predicted XI from a team's recent lineups, for fixtures where
+// the real lineup hasn't been published yet. Not based on news/injuries -
+// there's no such feed here, just recent starting-XI frequency.
+router.get("/teams/:id/predicted-lineup", async (req, res) => {
+  try {
+    const teamId = Number(req.params.id);
+    const result = await cached(`predicted-lineup:${teamId}`, 30 * 60_000, async () => {
+      const recentFixtures = await getTeamFixtures(teamId, 8);
+      const finishedIds = recentFixtures
+        .filter((r: any) => ["FT", "AET", "PEN"].includes(r.fixture.status.short))
+        .map((r: any) => r.fixture.id)
+        .slice(0, 5);
+      const lineupsPerFixture = await Promise.all(finishedIds.map((id: number) => getFixtureLineups(id)));
+      return predictLineup(lineupsPerFixture, teamId);
+    });
+    res.json(result);
   } catch (err) {
     handleError(res, err);
   }

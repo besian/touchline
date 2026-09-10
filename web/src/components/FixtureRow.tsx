@@ -59,7 +59,7 @@ export function FixtureRow({
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)", cursor: "pointer", minWidth: 0 }} onClick={onOpen}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0, flex: 1 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 4, minWidth: 0, flex: 1 }}>
           {[fixture.home, fixture.away].map((team) => (
             <div
               key={team.id}
@@ -68,7 +68,7 @@ export function FixtureRow({
                 e.stopPropagation();
                 onSelectTeam(team.id);
               }}
-              style={{ display: "flex", alignItems: "center", gap: 10 }}
+              style={{ display: "flex", alignItems: "center", gap: 10, maxWidth: "100%" }}
             >
               <TeamCrest id={team.id} logo={team.logo} name={team.name} />
               <span

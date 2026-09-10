@@ -41,6 +41,17 @@ export function MatchView({
     15_000,
     [fixtureId]
   );
+  const needsPrediction = fixture?.status === "NS";
+  const { data: predictedHome } = usePolling(
+    () => (needsPrediction ? api.predictedLineup(fixture!.home.id) : Promise.resolve(null)),
+    5 * 60_000,
+    [needsPrediction, fixture?.home.id]
+  );
+  const { data: predictedAway } = usePolling(
+    () => (needsPrediction ? api.predictedLineup(fixture!.away.id) : Promise.resolve(null)),
+    5 * 60_000,
+    [needsPrediction, fixture?.away.id]
+  );
 
   const playerStats = useMemo(() => {
     const map = new Map<number, PlayerMatchStats>();
@@ -50,6 +61,9 @@ export function MatchView({
 
   const homeLineup = lineups?.find((l) => l.teamId === fixture?.home.id);
   const awayLineup = lineups?.find((l) => l.teamId === fixture?.away.id);
+  const showingPredicted = !homeLineup && !awayLineup && (!!predictedHome || !!predictedAway);
+  const pitchHomeLineup = homeLineup ?? predictedHome ?? undefined;
+  const pitchAwayLineup = awayLineup ?? predictedAway ?? undefined;
 
   const oneXTwo = findMarket(markets ?? [], "Match result");
   const home = findPrice(oneXTwo, "Home");
@@ -172,16 +186,31 @@ export function MatchView({
               ))}
             </div>
             <span style={{ fontSize: 12, color: "var(--color-neutral-500)", fontVariantNumeric: "tabular-nums" }}>
-              {homeLineup?.formation ?? "—"} · {awayLineup?.formation ?? "—"}
+              {pitchHomeLineup?.formation ?? "—"} · {pitchAwayLineup?.formation ?? "—"}
             </span>
+            {showingPredicted && (
+              <span
+                className="tag tag-outline"
+                style={{ fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase" }}
+                title="Estimated from each team's recent starting XIs — not the confirmed lineup"
+              >
+                Predicted
+              </span>
+            )}
             <div style={{ flex: 1 }} />
             <span style={{ fontSize: 11, color: "var(--color-neutral-600)" }}>Hover a player for form, click for full stats</span>
           </div>
 
-          {homeLineup || awayLineup ? (
+          {showingPredicted && (
+            <p className="text-muted" style={{ fontSize: 12, margin: "-8px 0 0" }}>
+              Lineups aren't out yet — this is our best guess from each side's recent starting XIs, not a confirmed team sheet.
+            </p>
+          )}
+
+          {pitchHomeLineup || pitchAwayLineup ? (
             <Pitch
-              homeLineup={homeLineup}
-              awayLineup={awayLineup}
+              homeLineup={pitchHomeLineup}
+              awayLineup={pitchAwayLineup}
               homeTeamId={fixture.home.id}
               awayTeamId={fixture.away.id}
               side={side}

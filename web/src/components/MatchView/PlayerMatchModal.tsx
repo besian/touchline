@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X } from "@phosphor-icons/react";
 import { TeamCrest } from "../TeamCrest";
 import type { PlayerMatchStats } from "../../types";
@@ -13,7 +15,15 @@ export function PlayerMatchModal({
   onClose: () => void;
   onViewProfile: () => void;
 }) {
-  return (
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
+
+  return createPortal(
     <div className="dialog-backdrop" style={{ zIndex: 200, background: "rgba(8,9,14,0.72)" }} onClick={onClose}>
       <div className="dialog tl-fade-in" onClick={(e) => e.stopPropagation()}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -71,6 +81,7 @@ export function PlayerMatchModal({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

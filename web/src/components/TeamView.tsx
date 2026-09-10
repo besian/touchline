@@ -120,14 +120,16 @@ export function TeamView({
                       >
                         <TeamCrest id={opponent.id} logo={opponent.logo} name={opponent.name} size={18} />
                       </span>
-                      <span
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onSelectTeam(opponent.id);
-                        }}
-                        style={{ flex: 1, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
-                      >
-                        {opponent.name}
+                      <span style={{ flex: 1, minWidth: 0 }}>
+                        <span
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onSelectTeam(opponent.id);
+                          }}
+                          style={{ display: "inline-block", maxWidth: "100%", fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+                        >
+                          {opponent.name}
+                        </span>
                       </span>
                       <span style={{ fontSize: 10, color: "var(--color-neutral-600)", maxWidth: 140, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {f.competitionName}

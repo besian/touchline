@@ -59,6 +59,10 @@ export interface Lineup {
   startXI: LineupPlayer[];
 }
 
+export interface PredictedLineup extends Lineup {
+  sampleSize: number;
+}
+
 export interface PlayerSeasonStats {
   id: number;
   name: string;

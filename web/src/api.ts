@@ -7,6 +7,7 @@ import type {
   PlayerMatchStats,
   PlayerProfile,
   PlayerSeasonStats,
+  PredictedLineup,
   StatPair,
   TeamProfile,
   TeamStats,
@@ -42,4 +43,5 @@ export const api = {
   teamProfile: (teamId: number) => get<TeamProfile>(`/teams/${teamId}`),
   teamStatistics: (teamId: number) => get<TeamStats>(`/teams/${teamId}/statistics`),
   teamFixtures: (teamId: number, last = 10) => get<Fixture[]>(`/teams/${teamId}/fixtures?last=${last}`),
+  predictedLineup: (teamId: number) => get<PredictedLineup>(`/teams/${teamId}/predicted-lineup`),
 };
